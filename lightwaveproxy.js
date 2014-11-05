@@ -30,23 +30,25 @@ posix.syslog('info', syslogMsg);
 setInterval(function(){
   if (messageArray.length) {
     var message = messageArray.shift();
-    var udpString = "100,!" + message.device
-    if (message.command == "on") {
-      udpString += "F1|";
+    if ((message.device.match(/^R\dD\d/)) && (message.command.match(/^(\d+|on|off)/))) {
+      var udpString = "100,!" + message.device
+      if (message.command == "on") {
+        udpString += "F1|";
+      }
+      else if (message.command == "off") {
+        udpString += "F0|";
+      }
+      else {
+        udpString += "FdP" + message.command;
+      };
+      syslogMsg = "lightwaveproxy sending command " + udpString;
+      posix.syslog('debug',syslogMsg);
+      var udpMessage = new Buffer(udpString);
+      var client = dgam.createSocket("udp4");
+      client.send(udpMessage, 0, udpMessage.length, 9760, "192.168.100.166", function(err, bytes) {
+        client.close();
+      });
     }
-    else if (message.command == "off") {
-      udpString += "F0|";
-    }
-    else {
-      udpString += "FdP" + message.command;
-    };
-    syslogMsg = "lightwaveproxy sending command " + udpString;
-    posix.syslog('debug',syslogMsg);
-    var udpMessage = new Buffer(udpString);
-    var client = dgam.createSocket("udp4");
-    client.send(udpMessage, 0, udpMessage.length, 9760, "192.168.100.166", function(err, bytes) {
-      client.close();
-    });
   };
 }, commandDelay);
 
