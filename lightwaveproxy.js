@@ -3,10 +3,11 @@
 var http = require('http');
 var url = require('url');
 var dgam = require('dgram');
-var posix = require('posix');
+var posix = require('/usr/local/lib/node_modules/posix');
 
 var messageArray = [];
 var listenPort = 8888;
+var commandDelay = 200;
 var syslogMsg ="";
 
 posix.openlog('lightwaveproxy.js', { cons: false, ndelay:true, pid:true }, 'local0');
@@ -47,6 +48,6 @@ setInterval(function(){
       client.close();
     });
   };
-}, 100);
+}, commandDelay);
 
 posix.closelog();
