@@ -49,6 +49,10 @@ setInterval(function(){
         client.close();
       });
     }
+    else {
+      syslogMsg = "lightwaveproxy unrecognised command";
+      posix.syslog('debug',syslogMsg);
+    };
   };
 }, commandDelay);
 
