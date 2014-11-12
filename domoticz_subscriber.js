@@ -1,7 +1,12 @@
 var argv = require('/usr/local/lib/node_modules/yargs').argv;
 var http = require('http');
 
-var connectstring = 'mqtt://';
+if (argv.secure) {
+  var connectstring = 'mqtts://';
+} 
+else {
+  var connectstring = 'mqtt://';
+}
 if (argv.user && argv.pass && argv.host && argv.port && argv.cid) { 
   connectstring = connectstring + argv.user + ':' + argv.pass + '@' + argv.host + ':' + argv.port + '?clientId=' + argv.cid;
 }
