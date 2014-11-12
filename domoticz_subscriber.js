@@ -1,6 +1,15 @@
+var argv = require('/usr/local/lib/node_modules/yargs').argv;
 var http = require('http');
+
+var connectstring = 'mqtts://';
+if (argv.user && argv.pass && argv.host && argv.port && argv.cid) { 
+  connectstring = connectstring + argv.user + ':' + argv.pass + '@' + argv.host + ':' + argv.port + '?clientId=' + argv.cid;
+}
+else {
+  connectstring += 'username:password@mqtt.fqdn:1883?clientId=client';
+}
 var mqtt = require('/usr/local/lib/node_modules/mqtt')
-  , client = mqtt.connect('mqtts://orkeplpr:H8xTakU5Hhbv@m20.cloudmqtt.com:20280?clientId=nook');
+  , client = mqtt.connect(connectstring);
 
 var publish_topic = '/status/domoticz';
 var subscribe_topic = ['/jag/#','/han/#','/home/#'];
