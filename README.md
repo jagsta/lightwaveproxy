@@ -15,3 +15,4 @@ Takes the following command line arguments:
 --host=MQTT_host
 --port=MQTT_TLS_port
 --cid=ClientID
+--secure
