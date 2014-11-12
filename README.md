@@ -10,8 +10,8 @@ Node.js MQTT subscriber to receive events from MQTT and to publish results of in
 
 Takes the following command line arguments:
 
---user=<username>
---pass=<password>
---host=<MQTT hostname>
---port=<MQTT TLS port>
---cid=<Client ID>
+--user=username
+--pass=password
+--host=MQTT_host
+--port=MQTT_TLS_port
+--cid=ClientID
