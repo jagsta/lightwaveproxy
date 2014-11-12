@@ -1,13 +1,14 @@
 var argv = require('/usr/local/lib/node_modules/yargs').argv;
 var http = require('http');
 
-var connectstring = 'mqtts://';
+var connectstring = 'mqtt://';
 if (argv.user && argv.pass && argv.host && argv.port && argv.cid) { 
   connectstring = connectstring + argv.user + ':' + argv.pass + '@' + argv.host + ':' + argv.port + '?clientId=' + argv.cid;
 }
 else {
   connectstring += 'username:password@mqtt.fqdn:1883?clientId=client';
 }
+console.log(connectstring);
 var mqtt = require('/usr/local/lib/node_modules/mqtt')
   , client = mqtt.connect(connectstring);
 
@@ -17,6 +18,7 @@ var subscribe_topic = ['/jag/#','/han/#','/home/#'];
 client.subscribe(subscribe_topic);
 
 client.on('message', function(topic, message) {
+  var object='';
   try{
       object=JSON.parse(message);
   }catch(e){
