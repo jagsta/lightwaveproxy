@@ -2,20 +2,33 @@
 
 var argv = require('/usr/local/lib/node_modules/yargs').argv;
 var http = require('http');
+var fs    = require('fs'),
+    nconf = require('/usr/local/lib/node_modules/nconf');
 
-if (argv.secure) {
+nconf.argv().file({ file: '/usr/local/etc/domoticz_subscriber.json' })
+nconf.defaults({
+  "secure":"false",
+  "user":"username",
+  "pass":"password",
+  "host":"127.0.0.1",
+  "port":"1883",
+  "cid":"client",
+  "dhost":"127.0.0.1",
+  "dport":"8080",
+  "duser":"domoticz",
+  "dpass":"domoticz"
+})
+
+if (nconf.get('secure') == 'true') { 
   var connectstring = 'mqtts://';
 } 
 else {
   var connectstring = 'mqtt://';
 }
-if (argv.user && argv.pass && argv.host && argv.port && argv.cid) { 
-  connectstring = connectstring + argv.user + ':' + argv.pass + '@' + argv.host + ':' + argv.port + '?clientId=' + argv.cid;
-}
-else {
-  connectstring += 'username:password@mqtt.fqdn:1883?clientId=client';
-}
+
+connectstring = connectstring + nconf.get('user') + ':' + nconf.get('pass') + '@' + nconf.get('host') + ':' + nconf.get('port') + '?clientId=' + nconf.get('cid')
 console.log(connectstring);
+
 var mqtt = require('/usr/local/lib/node_modules/mqtt')
   , client = mqtt.connect(connectstring);
 
@@ -27,30 +40,10 @@ var getSwitches = '/json.htm?type=command&param=getlightswitches'
 var switches
 var variables
 
-if (argv.dhost) {
-  var domoticzHost = argv.dhost
-}
-else {
-  var domoticzHost = '192.168.100.112'
-}
-if (argv.dport) {
-  var domoticzPort = argv.dport
-}
-else {
-  var domoticzPort = '8000'
-}
-if (argv.duser) {
-  var domoticzUser = argv.duser
-}
-else {
-  var domoticzUser = 'domoticz'
-}  
-if (argv.dpass) {
-  var domoticzPass = argv.dpass
-}
-else {
-  var domoticzPass = 'domoticz'
-}
+var domoticzHost = nconf.get('dhost')
+var domoticzPort = nconf.get('dport')
+var domoticzUser = nconf.get('duser')
+var domoticzPass = nconf.get('dpass')
   
 var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
 update (getVariables, function(object) {
