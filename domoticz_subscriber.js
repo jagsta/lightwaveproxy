@@ -109,12 +109,12 @@ client.on('message', function(topic, message) {
          res_JSON = JSON.parse(chunk);
          console.log('status: ' + res_JSON.status);
          if (res_JSON.status == 'OK') {
-           client.publish(publish_topic, JSON.stringify(object,null,2) + ' OK'); 
-           console.log('Sent ' + JSON.stringify(object,null,2) + ' OK to ' + publish_topic)
+           client.publish(publish_topic, JSON.stringify(object) + ' OK'); 
+           console.log('Sent ' + JSON.stringify(object) + ' OK to ' + publish_topic)
          }
          else {
-           client.publish(publish_topic, JSON.stringify(object,null,2) + ' FAIL');
-           console.log('Sent ' + JSON.stringify(object,null,2) + ' FAIL to ' + publish_topic)
+           client.publish(publish_topic, JSON.stringify(object) + ' FAIL');
+           console.log('Sent ' + JSON.stringify(object) + ' FAIL to ' + publish_topic)
          }
     });
     }).on('error', function(e) {
