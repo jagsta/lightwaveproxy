@@ -21,6 +21,10 @@ nconf.defaults({
   "updateInterval":"3600000"
 })
 
+var syslogMsg ="";
+posix.openlog('domoticz_subscriber.js', { cons: false, ndelay:true, pid:true }, 'local0');
+  
+
 if (nconf.get('secure') == 'true') { 
   var connectstring = 'mqtts://';
 } 
@@ -28,9 +32,11 @@ else {
   var connectstring = 'mqtt://';
 }
 
+connectstring = connectstring + nconf.get('user') + ':' + nconf.get('pass') + '@' + nconf.get('host') + ':' + nconf.get('port') + '?clientId=' + nconf.get('cid')
 
 var mqtt = require('/usr/local/lib/node_modules/mqtt')
   , client = mqtt.connect(connectstring);
+posix.syslog('debug','Connecting with: ' +connectstring);
 
 var publish_topic = '/status/domoticz'
 var subscribe_topic = ['/jag/#','/han/#','/home/#']
@@ -45,11 +51,6 @@ var domoticzPort = nconf.get('dport')
 var domoticzUser = nconf.get('duser')
 var domoticzPass = nconf.get('dpass')
 
-var syslogMsg ="";
-posix.openlog('domoticz_subscriber.js', { cons: false, ndelay:true, pid:true }, 'local0');
-  
-connectstring = connectstring + nconf.get('user') + ':' + nconf.get('pass') + '@' + nconf.get('host') + ':' + nconf.get('port') + '?clientId=' + nconf.get('cid')
-posix.syslog('debug','Connecting with: ' +connectstring);
 var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
 update (getVariables, function(object) {
   variables = object
@@ -77,10 +78,8 @@ client.on('message', function(topic, message) {
       case topic == "/home/domoticz/switches": 
         for (var j = 0; j < switches.length; j++) {
           if (switches[j].Name == object.device) {
-            posix.syslog('found variable index:' +j+ ' with name:' +switches[j].Name)
+            posix.syslog('debug','found variable index:' +j+ ' with name:' +switches[j].Name)
             idx = switches[j].idx
-            posix.syslog(/\d+/.test(object.command))
-            posix.syslog(switches[j].IsDimmer)
             if (/\d+/.test(object.command) && switches[j].IsDimmer) {
               request += '&param=switchlight&idx=' + idx +'&switchcmd=Set%20Level&level=' + object.command
             }
@@ -94,7 +93,7 @@ client.on('message', function(topic, message) {
       case topic == "/home/domoticz/variables":
         for (var j = 0; j < variables.length; j++) {
           if (variables[j].Name == object.device) {
-            posix.syslog('found variable index:' +j+ ' with name:' +variables[j].Name)
+            posix.syslog('debug','found variable index:' +j+ ' with name:' +variables[j].Name)
             idx = variables[j].idx
             vType = variables[j].Type
             request += '&param=updateuservariable&idx=' + idx + '&vname=' + object.device + '&vtype=' + vType + '&vvalue=' + object.command
@@ -106,7 +105,7 @@ client.on('message', function(topic, message) {
       default:
         posix.syslog('notice','Received unrecognised topic: ' +topic)
     }
-    posix.syslog(request)
+    posix.syslog('debug',request)
     var req = http.get(request, function(res) {
      res.setEncoding('utf8');
      res.on('data', function (chunk) {
