@@ -1,3 +1,5 @@
+#!/usr/bin/env nodejs
+
 var argv = require('/usr/local/lib/node_modules/yargs').argv;
 var http = require('http');
 
