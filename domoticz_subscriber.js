@@ -16,7 +16,8 @@ nconf.defaults({
   "dhost":"127.0.0.1",
   "dport":"8080",
   "duser":"domoticz",
-  "dpass":"domoticz"
+  "dpass":"domoticz",
+  "updateInterval":"3600000"
 })
 
 if (nconf.get('secure') == 'true') { 
@@ -32,9 +33,9 @@ console.log(connectstring);
 var mqtt = require('/usr/local/lib/node_modules/mqtt')
   , client = mqtt.connect(connectstring);
 
-var publish_topic = '/status/domoticz';
-var subscribe_topic = ['/jag/#','/han/#','/home/#'];
-var updateDelay = 60000;
+var publish_topic = '/status/domoticz'
+var subscribe_topic = ['/jag/#','/han/#','/home/#']
+var updateInterval = nconf.get('updateInterval')
 var getVariables = '/json.htm?type=command&param=getuservariables'
 var getSwitches = '/json.htm?type=command&param=getlightswitches'
 var switches
@@ -155,6 +156,6 @@ setInterval(function(){
     switches = object
     
   });
-}, updateDelay);
+}, updateInterval);
 
 
