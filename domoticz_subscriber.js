@@ -37,6 +37,19 @@ if (argv.dport) {
 else {
   var domoticzPort = '8000'
 }
+if (argv.duser) {
+  var domoticzUser = argv.duser
+}
+else {
+  var domoticzUser = 'domoticz'
+}  
+if (argv.dpass) {
+  var domoticzPass = argv.dpass
+}
+else {
+  var domoticzPass = 'domoticz'
+}
+  
 var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
 update (getVariables, function(object) {
   variables = object
@@ -88,11 +101,6 @@ client.on('message', function(topic, message) {
       default:
         console.log('unrecognised topic: ' +topic)
     }
-
-//variables.forEach(function(obj) {
-//  console.log('Result: ', match(obj, { Name: object.device}));
-//});
-    //console.log(request);
     console.log(request)
     var req = http.get(request, function(res) {
      console.log("Domoticz response: " + res.statusCode);
@@ -112,10 +120,7 @@ client.on('message', function(topic, message) {
     }).on('error', function(e) {
       console.log("Got error: " + e.message);
     });
-  
   };
-    //console.log(message);
-  
 });
 
 function update (uri, cb) {
@@ -134,16 +139,6 @@ function update (uri, cb) {
     console.log("Got error: " + e.message);
   });
 }
-
-function match(item, filter) {
-  var keys = Object.keys(filter);
-  // true if any true
-  return keys.some(function (key) {
-    return item[key] == filter[key];
-  });
-}
-
-
 
 
 setInterval(function(){

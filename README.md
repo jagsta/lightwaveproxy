@@ -16,3 +16,7 @@ Takes the following command line arguments:
 --port=MQTT_TLS_port
 --cid=ClientID
 --secure
+--dhost=domoticz_host
+--dport=domoticz_port
+--duser=domoticz_user
+--dpass=domoticz_pass
