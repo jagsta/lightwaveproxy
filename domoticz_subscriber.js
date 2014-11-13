@@ -19,6 +19,24 @@ var mqtt = require('/usr/local/lib/node_modules/mqtt')
 
 var publish_topic = '/status/domoticz';
 var subscribe_topic = ['/jag/#','/han/#','/home/#'];
+var commandDelay = 5000;
+var getVariables = '/json.htm?type=command&param=getuservariables'
+var getSwitches = '/json.htm?type=command&param=getlightswitches'
+var switches
+var variables
+
+if (argv.dhost) {
+  var domoticzHost = argv.dhost
+}
+else {
+  var domoticzHost = '192.168.100.112'
+}
+if (argv.dport) {
+  var domoticzPort = argv.dport
+}
+else {
+  var domoticzPort = '8000'
+}
 
 client.subscribe(subscribe_topic);
 
@@ -29,7 +47,7 @@ client.on('message', function(topic, message) {
   }catch(e){
       console.log('Received message but parse to JSON failed: ' + message,e); //error in the above string(in this case,yes)!
   }
-  var request = 'http://192.168.100.112:8000/json.htm?type=command'
+  var request = 'http://' + domoticzHost + ':' + domoticzPort + '/json.htm?type=command'
   console.log('Received message, topic: ' + topic + ' message: ' + message);
   if (object.command && object.device) {
       if (object.device.match(/jag/)) {
@@ -68,3 +86,72 @@ client.on('message', function(topic, message) {
     //console.log(message);
   
 });
+
+function update (object, uri) {
+  var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
+  var request = requestStub + uri
+  console.log('updating from domoticz with request: ' + request)
+  var req = http.get(request, function(res) {
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      res_JSON = JSON.parse(chunk);
+      if (res_JSON.status == 'OK') {
+        object = res_JSON.result
+      }
+      //console.log(JSON.stringify(res_JSON.result,null,2))
+      for(var attributename in res_JSON.result){
+        console.log(attributename+": "+ JSON.stringify(res_JSON.result[attributename]),null,2);
+      }
+    })
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+  });
+}
+
+
+
+
+
+
+setInterval(function(){
+  // get user variables
+  var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
+  var request = requestStub + getVariables
+  console.log('checking user variables with request: ' + request)
+  var req = http.get(request, function(res) {
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      res_JSON = JSON.parse(chunk);
+      if (res_JSON.status == 'OK') {
+        variables = res_JSON.result
+      }
+      //console.log(JSON.stringify(res_JSON.result,null,2))
+for(var attributename in res_JSON.result){
+    console.log(attributename+": "+ JSON.stringify(res_JSON.result[attributename]),null,2);
+}
+      
+    })
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+  });
+  console.log('checking switches with request: ' + request)
+  var request = requestStub + getSwitches
+  var req = http.get(request, function(res) {
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      res_JSON = JSON.parse(chunk);
+      if (res_JSON.status == 'OK') {
+        switches = res_JSON.result
+      }
+//      console.log(JSON.stringify(res_JSON.result,null,2))
+for(var attributename in res_JSON.result){
+    console.log(attributename+": "+ JSON.stringify(res_JSON.result[attributename]),null,2);
+}
+    })
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+  });
+
+}, commandDelay);
+
+
