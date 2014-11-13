@@ -73,6 +73,7 @@ client.on('message', function(topic, message) {
   }
   console.log('Received message, topic: ' + topic + ' message: ' + message);
   if (object.command && object.device) {
+    object.command = capitalise(object.command)
     switch (true) {
       case topic == "/home/domoticz/switches": 
         console.log('got switch topic')
@@ -135,6 +136,10 @@ function update (uri, cb) {
   });
 }
 
+function capitalise(string)
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 setInterval(function(){
   // get user variables
