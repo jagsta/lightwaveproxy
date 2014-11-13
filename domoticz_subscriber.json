@@ -1,0 +1,13 @@
+{
+ "secure":"false",
+ "user":"username",
+ "pass":"password",
+ "host":"127.0.0.1",
+ "port":"1883",
+ "cid":"client",
+ "duser":"domoticz_user",
+ "dpass":"domoticz_pass",
+ "dhost":"127.0.0.1",
+ "dport":"8080"
+ "updateInterval":"3600000"
+}
