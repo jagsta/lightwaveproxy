@@ -73,7 +73,6 @@ client.on('message', function(topic, message) {
   }
   console.log('Received message, topic: ' + topic + ' message: ' + message);
   if (object.command && object.device) {
-    object.command = capitalise(object.command)
     switch (true) {
       case topic == "/home/domoticz/switches": 
         console.log('got switch topic')
@@ -81,7 +80,15 @@ client.on('message', function(topic, message) {
           if (switches[j].Name == object.device) {
             console.log('found variable index:' +j+ ' with name:' +switches[j].Name)
             idx = switches[j].idx
-            request += '&param=switchlight&idx=' + idx +'&switchcmd=' + object.command +'&level=0'
+            console.log(/\d+/.test(object.command))
+            console.log(switches[j].IsDimmer)
+            if (/\d+/.test(object.command) && switches[j].IsDimmer) {
+              request += '&param=switchlight&idx=' + idx +'&switchcmd=Set%20Level&level=' + object.command
+            }
+            else {
+              object.command = capitalise(object.command)
+              request += '&param=switchlight&idx=' + idx +'&switchcmd=' + object.command + '&level=0'
+            }
           }
         }
         break
