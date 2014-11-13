@@ -37,6 +37,7 @@ if (argv.dport) {
 else {
   var domoticzPort = '8000'
 }
+var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
 update (getVariables, function(object) {
   variables = object
 })
@@ -49,41 +50,50 @@ client.subscribe(subscribe_topic);
 
 client.on('message', function(topic, message) {
   var object='';
+  var idx='';
+  var vType=''
+  var request = requestStub + '/json.htm?type=command'
   try{
       object=JSON.parse(message);
   }catch(e){
       console.log('Received message but parse to JSON failed: ' + message,e); //error in the above string(in this case,yes)!
   }
-  var request = 'http://' + domoticzHost + ':' + domoticzPort + '/json.htm?type=command'
   console.log('Received message, topic: ' + topic + ' message: ' + message);
-  switch (true) {
-   case topic == "/home/domoticz/switches": 
-     console.log('got switch topic')
-     break
-   case topic == "/home/domoticz/variables":
-     console.log('got variable topic')
-     break
-   case /location/.test(topic):
-     console.log('got location topic')
-     break
-   default:
-     console.log('unrecognised topic: ' +topic)
-}
-
   if (object.command && object.device) {
-      if (object.device.match(/jag/)) {
-          console.log('matched device jag');
-  	request += '&param=switchlight&idx=29';
-      }
-      if (object.command.match(/on/)){
-          console.log('matched command on');
-  	request += '&switchcmd=On&level=0';
-      }
-      else if (object.command.match(/off/)){
-          console.log('matched command off');
-  	request += '&switchcmd=Off&level=0';
-      }
+    switch (true) {
+      case topic == "/home/domoticz/switches": 
+        console.log('got switch topic')
+        for (var j = 0; j < switches.length; j++) {
+          if (switches[j].Name == object.device) {
+            console.log('found variable index:' +j+ ' with name:' +switches[j].Name)
+            idx = switches[j].idx
+            request += '&param=switchlight&idx=' + idx +'&switchcmd=' + object.command +'&level=0'
+          }
+        }
+        break
+      case topic == "/home/domoticz/variables":
+        console.log('got variable topic')
+        for (var j = 0; j < variables.length; j++) {
+          if (variables[j].Name == object.device) {
+            console.log('found variable index:' +j+ ' with name:' +variables[j].Name)
+            idx = variables[j].idx
+            vType = variables[j].Type
+            request += '&param=updateuservariable&idx=' + idx + '&vname=' + object.device + '&vtype=' + vType + '&vvalue=' + object.command
+          }
+        }
+        break
+      case /location/.test(topic):
+        console.log('got location topic')
+        break
+      default:
+        console.log('unrecognised topic: ' +topic)
+    }
+
+//variables.forEach(function(obj) {
+//  console.log('Result: ', match(obj, { Name: object.device}));
+//});
     //console.log(request);
+    console.log(request)
     var req = http.get(request, function(res) {
      console.log("Domoticz response: " + res.statusCode);
      res.setEncoding('utf8');
@@ -109,7 +119,6 @@ client.on('message', function(topic, message) {
 });
 
 function update (uri, cb) {
-  var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
   var request = requestStub + uri
   console.log('updating from domoticz with request: ' + request)
   var req = http.get(request, function(res) {
@@ -119,14 +128,20 @@ function update (uri, cb) {
       if (res_JSON.status == 'OK') {
         cb(res_JSON.result) 
       }
-      //console.log(JSON.stringify(res_JSON.result,null,2))
+//      console.log(JSON.stringify(res_JSON,null,2))
     })
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
   });
 }
 
-
+function match(item, filter) {
+  var keys = Object.keys(filter);
+  // true if any true
+  return keys.some(function (key) {
+    return item[key] == filter[key];
+  });
+}
 
 
 
