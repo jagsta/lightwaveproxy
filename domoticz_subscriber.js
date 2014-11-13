@@ -19,7 +19,7 @@ var mqtt = require('/usr/local/lib/node_modules/mqtt')
 
 var publish_topic = '/status/domoticz';
 var subscribe_topic = ['/jag/#','/han/#','/home/#'];
-var commandDelay = 5000;
+var updateDelay = 60000;
 var getVariables = '/json.htm?type=command&param=getuservariables'
 var getSwitches = '/json.htm?type=command&param=getlightswitches'
 var switches
@@ -37,6 +37,13 @@ if (argv.dport) {
 else {
   var domoticzPort = '8000'
 }
+update (getVariables, function(object) {
+  variables = object
+})
+update (getSwitches, function(object) {
+  switches = object
+})
+
 
 client.subscribe(subscribe_topic);
 
@@ -49,6 +56,20 @@ client.on('message', function(topic, message) {
   }
   var request = 'http://' + domoticzHost + ':' + domoticzPort + '/json.htm?type=command'
   console.log('Received message, topic: ' + topic + ' message: ' + message);
+  switch (true) {
+   case topic == "/home/domoticz/switches": 
+     console.log('got switch topic')
+     break
+   case topic == "/home/domoticz/variables":
+     console.log('got variable topic')
+     break
+   case /location/.test(topic):
+     console.log('got location topic')
+     break
+   default:
+     console.log('unrecognised topic: ' +topic)
+}
+
   if (object.command && object.device) {
       if (object.device.match(/jag/)) {
           console.log('matched device jag');
@@ -87,7 +108,7 @@ client.on('message', function(topic, message) {
   
 });
 
-function update (object, uri) {
+function update (uri, cb) {
   var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
   var request = requestStub + uri
   console.log('updating from domoticz with request: ' + request)
@@ -96,12 +117,9 @@ function update (object, uri) {
     res.on('data', function (chunk) {
       res_JSON = JSON.parse(chunk);
       if (res_JSON.status == 'OK') {
-        object = res_JSON.result
+        cb(res_JSON.result) 
       }
       //console.log(JSON.stringify(res_JSON.result,null,2))
-      for(var attributename in res_JSON.result){
-        console.log(attributename+": "+ JSON.stringify(res_JSON.result[attributename]),null,2);
-      }
     })
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
@@ -115,43 +133,16 @@ function update (object, uri) {
 
 setInterval(function(){
   // get user variables
-  var requestStub = 'http://' + domoticzHost + ':' + domoticzPort
-  var request = requestStub + getVariables
-  console.log('checking user variables with request: ' + request)
-  var req = http.get(request, function(res) {
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-      res_JSON = JSON.parse(chunk);
-      if (res_JSON.status == 'OK') {
-        variables = res_JSON.result
-      }
-      //console.log(JSON.stringify(res_JSON.result,null,2))
-for(var attributename in res_JSON.result){
-    console.log(attributename+": "+ JSON.stringify(res_JSON.result[attributename]),null,2);
-}
-      
-    })
-  }).on('error', function(e) {
-    console.log("Got error: " + e.message);
+  update (getVariables, function(object) { 
+//    console.log(JSON.stringify(object)) 
+    variables = object
+    
   });
-  console.log('checking switches with request: ' + request)
-  var request = requestStub + getSwitches
-  var req = http.get(request, function(res) {
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-      res_JSON = JSON.parse(chunk);
-      if (res_JSON.status == 'OK') {
-        switches = res_JSON.result
-      }
-//      console.log(JSON.stringify(res_JSON.result,null,2))
-for(var attributename in res_JSON.result){
-    console.log(attributename+": "+ JSON.stringify(res_JSON.result[attributename]),null,2);
-}
-    })
-  }).on('error', function(e) {
-    console.log("Got error: " + e.message);
+  update (getSwitches, function(object) { 
+//    console.log(JSON.stringify(object)) 
+    switches = object
+    
   });
-
-}, commandDelay);
+}, updateDelay);
 
 
