@@ -111,6 +111,7 @@ client.on('message', function(topic, message) {
      res.on('data', function (chunk) {
          res_JSON = JSON.parse(chunk);
          object.status = res_JSON.status
+         object.time = getDateTime()
          client.publish(publish_topic, JSON.stringify(object)); 
            posix.syslog('info','Sent ' + JSON.stringify(object) +' to topic:' + publish_topic)
     });
@@ -140,6 +141,32 @@ function capitalise(string)
 {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+function getDateTime() {
+
+    var date = new Date();
+
+    var hour = date.getHours();
+    hour = (hour < 10 ? "0" : "") + hour;
+
+    var min  = date.getMinutes();
+    min = (min < 10 ? "0" : "") + min;
+
+    var sec  = date.getSeconds();
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    var year = date.getFullYear();
+
+    var month = date.getMonth() + 1;
+    month = (month < 10 ? "0" : "") + month;
+
+    var day  = date.getDate();
+    day = (day < 10 ? "0" : "") + day;
+
+    return year + "-" +  month + "-" + day + "_" + hour + ":" + min + ":" + sec;
+
+}
+
 
 setInterval(function(){
   update (getVariables, function(object) { 
