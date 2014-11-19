@@ -19,8 +19,8 @@ nconf.defaults({
   "duser":"domoticz",
   "dpass":"domoticz",
   "updateInterval":"3600",
-  "subtopic":"'/test','/test1','/test3'",
-  "pubtopic":"'/status'"
+  "subtopic":"/test,/test1,/test3",
+  "pubtopic":"/status"
 })
 
 var syslogMsg ="";
@@ -62,7 +62,7 @@ update (getSwitches, function(object) {
 })
 
 
-client.subscribe(subscribe_topic);
+client.subscribe(subscribe_topic)
 if (Array.isArray(subscribe_topic)) { 
   posix.syslog('debug','subscribing to topics: ' +subscribe_topic);
 }
