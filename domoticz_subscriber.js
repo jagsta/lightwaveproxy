@@ -1,10 +1,10 @@
 #!/usr/bin/env nodejs
 
-var posix = require('/usr/local/lib/node_modules/posix');
-var argv = require('/usr/local/lib/node_modules/yargs').argv;
+var posix = require('posix');
+var argv = require('yargs').argv;
 var http = require('http');
 var fs    = require('fs'),
-    nconf = require('/usr/local/lib/node_modules/nconf');
+    nconf = require('nconf');
 
 nconf.argv().file({ file: '/usr/local/etc/domoticz_subscriber.json' })
 nconf.defaults({
