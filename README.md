@@ -33,6 +33,6 @@ otherwise the default values can be overridden with the following command line a
 
 --updateInterval=interval_msecs
 
---subtopic="'topic1','/topic2/+','/topics3/#'"
+--subtopic="topic1,/topic2/+,/topics3/#"
 
 --pubtopic="/status"
