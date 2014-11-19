@@ -18,7 +18,9 @@ nconf.defaults({
   "dport":"8080",
   "duser":"domoticz",
   "dpass":"domoticz",
-  "updateInterval":"3600000"
+  "updateInterval":"3600000",
+  "subtopics":"'/test','/test1','/test3'",
+  "pubtopics":"'/status'"
 })
 
 var syslogMsg ="";
@@ -34,12 +36,12 @@ else {
 
 connectstring = connectstring + nconf.get('user') + ':' + nconf.get('pass') + '@' + nconf.get('host') + ':' + nconf.get('port') + '?clientId=' + nconf.get('cid')
 
-var mqtt = require('/usr/local/lib/node_modules/mqtt')
+var mqtt = require('mqtt')
   , client = mqtt.connect(connectstring);
 posix.syslog('debug','Connecting with: ' +connectstring);
 
-var publish_topic = '/status/domoticz'
-var subscribe_topic = ['/jag/#','/han/#','/home/#']
+var publish_topic = nconf.get('pubtopics')
+var subscribe_topic = nconf.get('subtopics').split(",")
 var updateInterval = nconf.get('updateInterval')
 var getVariables = '/json.htm?type=command&param=getuservariables'
 var getSwitches = '/json.htm?type=command&param=getlightswitches'
@@ -61,6 +63,14 @@ update (getSwitches, function(object) {
 
 
 client.subscribe(subscribe_topic);
+if (Array.isArray(subscribe_topic)) { 
+  posix.syslog('debug','subscribing to topics: ' +subscribe_topic);
+}
+else {
+  posix.syslog('debug','subscribing to topic: ' +subscribe_topic);
+}
+posix.syslog('debug','publishing to topic: ' +publish_topic);
+
 
 client.on('message', function(topic, message) {
   var object='';
