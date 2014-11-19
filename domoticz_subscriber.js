@@ -127,7 +127,11 @@ function update (uri, cb) {
   var req = http.get(request, function(res) {
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
-      res_JSON = JSON.parse(chunk);
+      try{
+        res_JSON = JSON.parse(chunk);
+      }catch(e){
+        posix.syslog('notice','Received message but parse to JSON failed: ' + chunk,e)
+      }
       if (res_JSON.status == 'OK') {
         cb(res_JSON.result) 
       }
