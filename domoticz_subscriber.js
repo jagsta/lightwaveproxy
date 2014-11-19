@@ -19,8 +19,8 @@ nconf.defaults({
   "duser":"domoticz",
   "dpass":"domoticz",
   "updateInterval":"3600000",
-  "subtopics":"'/test','/test1','/test3'",
-  "pubtopics":"'/status'"
+  "subtopic":"'/test','/test1','/test3'",
+  "pubtopic":"'/status'"
 })
 
 var syslogMsg ="";
@@ -40,8 +40,8 @@ var mqtt = require('mqtt')
   , client = mqtt.connect(connectstring);
 posix.syslog('debug','Connecting with: ' +connectstring);
 
-var publish_topic = nconf.get('pubtopics')
-var subscribe_topic = nconf.get('subtopics').split(",")
+var publish_topic = nconf.get('pubtopic')
+var subscribe_topic = nconf.get('subtopic').split(",")
 var updateInterval = nconf.get('updateInterval')
 var getVariables = '/json.htm?type=command&param=getuservariables'
 var getSwitches = '/json.htm?type=command&param=getlightswitches'

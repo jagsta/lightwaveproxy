@@ -9,5 +9,7 @@
  "dpass":"domoticz_pass",
  "dhost":"127.0.0.1",
  "dport":"8080",
- "updateInterval":"3600000"
+ "updateInterval":"3600000",
+ "subtopic":"'/test','/test1','/test2'",
+ "pubtopic":"'/status/'"
 }
