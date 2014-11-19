@@ -32,3 +32,7 @@ otherwise the default values can be overridden with the following command line a
 --dpass=domoticz_pass
 
 --updateInterval=interval_msecs
+
+--subtopic="'topic1','/topic2/+','/topics3/#'"
+
+--pubtopic="/status"
