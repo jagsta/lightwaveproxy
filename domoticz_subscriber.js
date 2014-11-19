@@ -18,7 +18,7 @@ nconf.defaults({
   "dport":"8080",
   "duser":"domoticz",
   "dpass":"domoticz",
-  "updateInterval":"3600000",
+  "updateInterval":"3600",
   "subtopic":"'/test','/test1','/test3'",
   "pubtopic":"'/status'"
 })
@@ -42,7 +42,7 @@ posix.syslog('debug','Connecting with: ' +connectstring);
 
 var publish_topic = nconf.get('pubtopic')
 var subscribe_topic = nconf.get('subtopic').split(",")
-var updateInterval = nconf.get('updateInterval')
+var updateInterval = nconf.get('updateInterval')  * 1000
 var getVariables = '/json.htm?type=command&param=getuservariables'
 var getSwitches = '/json.htm?type=command&param=getlightswitches'
 var switches
@@ -189,6 +189,6 @@ setInterval(function(){
   update (getSwitches, function(object) { 
     switches = object
   });
-}, updateInterval);
+}, (updateInterval));
 
 
