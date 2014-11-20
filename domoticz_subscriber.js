@@ -122,7 +122,7 @@ client.on('message', function(topic, message) {
          res_JSON = JSON.parse(chunk);
          object.status = res_JSON.status
          object.time = getDateTime()
-         client.publish(publish_topic, JSON.stringify(object)); 
+         client.publish(publish_topic, JSON.stringify(object), { qos : 2 }); 
            posix.syslog('info','Sent ' + JSON.stringify(object) +' to topic:' + publish_topic)
     });
     }).on('error', function(e) {
