@@ -11,6 +11,8 @@ Node.js MQTT subscriber to receive events from MQTT and to publish results of in
 It will look for a config file named domoticz_subscriber.json in /usr/local/etc and load those values if the file exists,
 otherwise the default values can be overridden with the following command line arguments:
 
+status messages published by the script will be published at qos level 2 to ensure delivery and avoid duplicate messages to clients, if your client supports qos levels
+
 --user=username
 
 --pass=password
