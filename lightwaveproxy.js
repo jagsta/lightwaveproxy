@@ -45,7 +45,7 @@ setInterval(function(){
       posix.syslog('debug',syslogMsg);
       var udpMessage = new Buffer(udpString);
       var client = dgam.createSocket("udp4");
-      client.send(udpMessage, 0, udpMessage.length, 9760, "192.168.100.166", function(err, bytes) {
+      client.send(udpMessage, 0, udpMessage.length, 9760, "192.168.10.166", function(err, bytes) {
         client.close();
       });
     }
